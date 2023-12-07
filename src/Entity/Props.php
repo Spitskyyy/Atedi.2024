@@ -8,28 +8,22 @@ use App\Repository\PropsRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\PropsRepository")
- * @UniqueEntity(fields={"title"}, message="Il existe déjà un matériel avec ce nom")
- * @ORM\Table(name="tbl_props")
- */
+#[ORM\Entity(repositoryClass: PropsRepository::class)]
+#[ORM\Table(name:tbl_props)]
 class Props
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
-    private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $title;
+     #[ORM\Id]
+     #[ORM\GeneratedValue]
+     #[ORM\Column]
+    private ?int $id;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Intervention", mappedBy="props")
-     */
+
+    #[ORM\Column(length: 255)]     
+    private ?string $title;
+
+    
+     #[ORM\OneToMany(targetEntity: "App\Entity\Intervention", mappedBy: "props")]
     private $interventions;
 
     public function __construct()
@@ -59,9 +53,6 @@ class Props
         return $this;
     }
 
-    /**
-     * @return Collection|Intervention[]
-     */
     public function getInterventions(): Collection
     {
         return $this->interventions;
