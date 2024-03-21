@@ -2,39 +2,35 @@
 
 namespace App\Controller;
 
-use App\Entity\Booklet;
-use App\Form\BookletType;
-use App\Repository\BookletRepository;
+use App\Entity\Action;
+use App\Form\ActionType;
+use App\Repository\ActionRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/booklet')]
-class BookletController extends AbstractController
+#[Route('/action')]
+class ActionController extends AbstractController
 {
-    /**
-     * @Route("/", name="booklet_index", methods={"GET"})
-     */
-    public function index(BookletRepository $bookletRepository): Response
+    #[Route("/", name: "action_index", methods: ["GET"])]
+    public function index(ActionRepository $actionRepository): Response
     {
-        return $this->render('booklet/index.html.twig', [
-            'booklets' => $bookletRepository->findAll(),
+        return $this->render('action/index.html.twig', [
+            'actions' => $actionRepository->findAll(),
         ]);
     }
 
-    /**
-     * @Route("/new", name="booklet_new", methods={"GET","POST"})
-     */
+    #[Route("/new", name: "action_new", methods: ["GET","POST"])]
     public function new(Request $request): Response
     {
-        $booklet = new Booklet();
-        $form = $this->createForm(BookletType::class, $booklet);
+        $action = new Action();
+        $form = $this->createForm(ActionType::class, $action);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($booklet);
+            $entityManager->persist($action);
             $entityManager->flush();
 
             if ( $request->query->has('s') == 'report') {
@@ -42,47 +38,43 @@ class BookletController extends AbstractController
                     'id' => $request->query->get('id'),
                 ]);
             }
-            
-            return $this->redirectToRoute('booklet_index');
+
+            return $this->redirectToRoute('action_index');
         }
 
-        return $this->render('booklet/new.html.twig', [
-            'booklet' => $booklet,
+        return $this->render('action/new.html.twig', [
+            'action' => $action,
             'form' => $form->createView(),
         ]);
     }
 
-    /**
-     * @Route("/{id}/edit", name="booklet_edit", methods={"GET","POST"})
-     */
-    public function edit(Request $request, Booklet $booklet): Response
+    #[Route("/{id}/edit", name: "action_edit", methods: ["GET","POST"])]
+    public function edit(Request $request, Action $action): Response
     {
-        $form = $this->createForm(BookletType::class, $booklet);
+        $form = $this->createForm(ActionType::class, $action);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->getDoctrine()->getManager()->flush();
 
-            return $this->redirectToRoute('booklet_index');
+            return $this->redirectToRoute('action_index');
         }
 
-        return $this->render('booklet/edit.html.twig', [
-            'booklet' => $booklet,
+        return $this->render('action/edit.html.twig', [
+            'action' => $action,
             'form' => $form->createView(),
         ]);
     }
 
-    /**
-     * @Route("/{id}", name="booklet_delete", methods={"DELETE"})
-     */
-    public function delete(Request $request, Booklet $booklet): Response
+    #[Route("/{id}", name: "action_delete", methods: ["DELETE"])]
+    public function delete(Request $request, Action $action): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$booklet->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$action->getId(), $request->request->get('_token'))) {
             $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->remove($booklet);
+            $entityManager->remove($action);
             $entityManager->flush();
         }
 
-        return $this->redirectToRoute('booklet_index');
+        return $this->redirectToRoute('action_index');
     }
 }

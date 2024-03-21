@@ -2,108 +2,79 @@
 
 namespace App\Controller;
 
-
-use App\Entity\Client;
-use App\Form\ClientType;
-use App\Repository\ClientRepository;
-use App\Repository\InterventionRepository;
+use App\Entity\Action;
+use App\Form\ActionType;
+use App\Repository\ActionRepository;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-#[Route('/client')]
-class ClientController extends AbstractController
+#[Route('/action')]
+class ActionController extends AbstractController
 {
-    /**
-     * @Route("/", name="client_index", methods={"GET"})
-     */
-    public function index(ClientRepository $clientRepository): Response
+    #[Route("/", name: "action_index", methods: ["GET"])]
+    public function index(ActionRepository $actionRepository): Response
     {
-        return $this->render('client/index.html.twig', [
-            'clients' => $clientRepository->findAll(),
+        return $this->render('action/index.html.twig', [
+            'actions' => $actionRepository->findAll(),
         ]);
     }
 
-    /**
-     * @Route("/new", name="client_new", methods={"GET","POST"})
-     */
+    #[Route("/new", name: "action_new", methods: ["GET","POST"])]
     public function new(Request $request): Response
     {
-
-
-        $client = new Client();
-        $form = $this->createForm(ClientType::class, $client);
+        $action = new Action();
+        $form = $this->createForm(ActionType::class, $action);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($client);
+            $entityManager->persist($action);
             $entityManager->flush();
 
-            if ($request->query->get('s') === 'intervention') {
-                // Rediriger vers /intervention/new?client-id=5
-                return $this->redirectToRoute('intervention_new', ['client-id' => $client->getId()]);
+            if ( $request->query->has('s') == 'report') {
+                return $this->redirectToRoute('intervention_report', [
+                    'id' => $request->query->get('id'),
+                ]);
             }
-            
 
-            return $this->redirectToRoute('client_show', [
-                'id' => $client->getId(),
-            ]);
+            return $this->redirectToRoute('action_index');
         }
 
-        return $this->render('client/new.html.twig', [
-            'client' => $client,
+        return $this->render('action/new.html.twig', [
+            'action' => $action,
             'form' => $form->createView(),
         ]);
     }
 
-    /**
-     * @Route("/{id}", name="client_show", methods={"GET"})
-     */
-    public function show(Client $client, InterventionRepository $interventionRepository): Response
+    #[Route("/{id}/edit", name: "action_edit", methods: ["GET","POST"])]
+    public function edit(Request $request, Action $action): Response
     {
-        $interventions = $interventionRepository->findAllByClient($client->getId());
-
-        return $this->render('client/show.html.twig', [
-            'client' => $client,
-            'interventions' => $interventions,
-        ]);
-    }
-
-    /**
-     * @Route("/{id}/edit", name="client_edit", methods={"GET","POST"})
-     */
-    public function edit(Request $request, Client $client): Response
-    {
-        $form = $this->createForm(ClientType::class, $client);
+        $form = $this->createForm(ActionType::class, $action);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->getDoctrine()->getManager()->flush();
 
-            return $this->redirectToRoute('client_show', [
-                'id' => $client->getId(),
-            ]);
+            return $this->redirectToRoute('action_index');
         }
 
-        return $this->render('client/edit.html.twig', [
-            'client' => $client,
+        return $this->render('action/edit.html.twig', [
+            'action' => $action,
             'form' => $form->createView(),
         ]);
     }
 
-    /**
-     * @Route("/{id}", name="client_delete", methods={"DELETE"})
-     */
-    public function delete(Request $request, Client $client): Response
+    #[Route("/{id}", name: "action_delete", methods: ["DELETE"])]
+    public function delete(Request $request, Action $action): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$client->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$action->getId(), $request->request->get('_token'))) {
             $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->remove($client);
+            $entityManager->remove($action);
             $entityManager->flush();
         }
 
-        return $this->redirectToRoute('client_index');
+        return $this->redirectToRoute('action_index');
     }
 }

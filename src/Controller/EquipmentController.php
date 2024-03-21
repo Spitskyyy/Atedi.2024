@@ -2,103 +2,79 @@
 
 namespace App\Controller;
 
-use App\Entity\Equipment;
-use App\Form\EquipmentType;
-use App\Repository\EquipmentRepository;
-use App\Repository\InterventionRepository;
+use App\Entity\Action;
+use App\Form\ActionType;
+use App\Repository\ActionRepository;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-#[Route('/equipment')]
-class EquipmentController extends AbstractController
+#[Route('/action')]
+class ActionController extends AbstractController
 {
-    /**
-     * @Route("/", name="equipment_index", methods={"GET"})
-     */
-    public function index(EquipmentRepository $equipmentRepository): Response
+    #[Route("/", name: "action_index", methods: ["GET"])]
+    public function index(ActionRepository $actionRepository): Response
     {
-        return $this->render('equipment/index.html.twig', [
-            'equipments' => $equipmentRepository->findAll(),
+        return $this->render('action/index.html.twig', [
+            'actions' => $actionRepository->findAll(),
         ]);
     }
 
-    /**
-     * @Route("/new", name="equipment_new", methods={"GET","POST"})
-     */
+    #[Route("/new", name: "action_new", methods: ["GET","POST"])]
     public function new(Request $request): Response
     {
-        $equipment = new Equipment();
-        $form = $this->createForm(EquipmentType::class, $equipment);
+        $action = new Action();
+        $form = $this->createForm(ActionType::class, $action);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($equipment);
+            $entityManager->persist($action);
             $entityManager->flush();
 
-            if ( $request->query->has('s') == 'intervention') {
-                return $this->redirectToRoute('intervention_new');
+            if ( $request->query->has('s') == 'report') {
+                return $this->redirectToRoute('intervention_report', [
+                    'id' => $request->query->get('id'),
+                ]);
             }
-            
-            return $this->redirectToRoute('equipment_show', [
-                'id' => $equipment->getId(),
-            ]);
+
+            return $this->redirectToRoute('action_index');
         }
 
-        return $this->render('equipment/new.html.twig', [
-            'equipment' => $equipment,
+        return $this->render('action/new.html.twig', [
+            'action' => $action,
             'form' => $form->createView(),
         ]);
     }
 
-    /**
-     * @Route("/{id}", name="equipment_show", methods={"GET"})
-     */
-    public function show(Equipment $equipment, InterventionRepository $interventionRepository): Response
+    #[Route("/{id}/edit", name: "action_edit", methods: ["GET","POST"])]
+    public function edit(Request $request, Action $action): Response
     {
-        $interventions = $interventionRepository->findAllByEquipment($equipment->getId());
-
-        return $this->render('equipment/show.html.twig', [
-            'equipment' => $equipment,
-            'interventions' => $interventions,
-        ]);
-    }
-
-    /**
-     * @Route("/{id}/edit", name="equipment_edit", methods={"GET","POST"})
-     */
-    public function edit(Request $request, Equipment $equipment): Response
-    {
-        $form = $this->createForm(EquipmentType::class, $equipment);
+        $form = $this->createForm(ActionType::class, $action);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->getDoctrine()->getManager()->flush();
 
-            return $this->redirectToRoute('equipment_show', [
-                'id' => $equipment->getId(),
-            ]);
+            return $this->redirectToRoute('action_index');
         }
 
-        return $this->render('equipment/edit.html.twig', [
-            'equipment' => $equipment,
+        return $this->render('action/edit.html.twig', [
+            'action' => $action,
             'form' => $form->createView(),
         ]);
     }
 
-    /**
-     * @Route("/{id}", name="equipment_delete", methods={"DELETE"})
-     */
-    public function delete(Request $request, Equipment $equipment): Response
+    #[Route("/{id}", name: "action_delete", methods: ["DELETE"])]
+    public function delete(Request $request, Action $action): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$equipment->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$action->getId(), $request->request->get('_token'))) {
             $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->remove($equipment);
+            $entityManager->remove($action);
             $entityManager->flush();
         }
 
-        return $this->redirectToRoute('equipment_index');
+        return $this->redirectToRoute('action_index');
     }
 }

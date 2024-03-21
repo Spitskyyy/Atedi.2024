@@ -2,103 +2,79 @@
 
 namespace App\Controller;
 
-use App\Entity\Props;
-use App\Form\PropsType;
-use App\Repository\PropsRepository;
-use App\Repository\InterventionRepository;
+use App\Entity\Action;
+use App\Form\ActionType;
+use App\Repository\ActionRepository;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-#[Route('/props')]
-class PropsController extends AbstractController
+#[Route('/action')]
+class ActionController extends AbstractController
 {
-    /**
-     * @Route("/", name="props_index", methods={"GET"})
-     */
-    public function index(PropsRepository $propsRepository): Response
+    #[Route("/", name: "action_index", methods: ["GET"])]
+    public function index(ActionRepository $actionRepository): Response
     {
-        return $this->render('props/index.html.twig', [
-            'propss' => $propsRepository->findAll(),
+        return $this->render('action/index.html.twig', [
+            'actions' => $actionRepository->findAll(),
         ]);
     }
 
-    /**
-     * @Route("/new", name="props_new", methods={"GET","POST"})
-     */
+    #[Route("/new", name: "action_new", methods: ["GET","POST"])]
     public function new(Request $request): Response
     {
-        $props = new Props();
-        $form = $this->createForm(PropsType::class, $props);
+        $action = new Action();
+        $form = $this->createForm(ActionType::class, $action);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($props);
+            $entityManager->persist($action);
             $entityManager->flush();
 
-            if ( $request->query->has('s') == 'intervention') {
-                return $this->redirectToRoute('intervention_new');
+            if ( $request->query->has('s') == 'report') {
+                return $this->redirectToRoute('intervention_report', [
+                    'id' => $request->query->get('id'),
+                ]);
             }
-            
-            return $this->redirectToRoute('props_show', [
-                'id' => $props->getId(),
-            ]);
+
+            return $this->redirectToRoute('action_index');
         }
 
-        return $this->render('props/new.html.twig', [
-            'props' => $props,
+        return $this->render('action/new.html.twig', [
+            'action' => $action,
             'form' => $form->createView(),
         ]);
     }
 
-    /**
-     * @Route("/{id}", name="props_show", methods={"GET"})
-     */
-    public function show(Props $props, InterventionRepository $interventionRepository): Response
+    #[Route("/{id}/edit", name: "action_edit", methods: ["GET","POST"])]
+    public function edit(Request $request, Action $action): Response
     {
-        $interventions = $interventionRepository->findAllByProps($props->getId());
-
-        return $this->render('props/show.html.twig', [
-            'props' => $props,
-            'interventions' => $interventions,
-        ]);
-    }
-
-    /**
-     * @Route("/{id}/edit", name="props_edit", methods={"GET","POST"})
-     */
-    public function edit(Request $request, Props $props): Response
-    {
-        $form = $this->createForm(PropsType::class, $props);
+        $form = $this->createForm(ActionType::class, $action);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->getDoctrine()->getManager()->flush();
 
-            return $this->redirectToRoute('props_show', [
-                'id' => $props->getId(),
-            ]);
+            return $this->redirectToRoute('action_index');
         }
 
-        return $this->render('props/edit.html.twig', [
-            'props' => $props,
+        return $this->render('action/edit.html.twig', [
+            'action' => $action,
             'form' => $form->createView(),
         ]);
     }
 
-    /**
-     * @Route("/{id}", name="props_delete", methods={"DELETE"})
-     */
-    public function delete(Request $request, Props $props): Response
+    #[Route("/{id}", name: "action_delete", methods: ["DELETE"])]
+    public function delete(Request $request, Action $action): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$props->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$action->getId(), $request->request->get('_token'))) {
             $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->remove($props);
+            $entityManager->remove($action);
             $entityManager->flush();
         }
 
-        return $this->redirectToRoute('props_index');
+        return $this->redirectToRoute('action_index');
     }
 }

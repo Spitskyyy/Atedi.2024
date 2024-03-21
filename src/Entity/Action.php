@@ -8,28 +8,20 @@ use Doctrine\Common\Collections\Collection;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=ActionRepository::class)
- * @UniqueEntity(fields={"title"}, message="Il existe déjà une action avec ce nom")
- * @ORM\Table(name="tbl_action")
- */
+#[ORM\Entity(repositoryClass: ActionRepository::class)]
+#[UniqueEntity(fields: ['title'], message: 'Il existe déjà une action avec ce nom')]
+#[ORM\Table(name: 'tbl_action')]
 class Action
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $title;
+    #[ORM\Column(type: 'string', length: 255)]
+    private ?string $title = null;
 
-    /**
-     * @ORM\ManyToMany(targetEntity=InterventionReport::class, mappedBy="actions")
-     */
+    #[ORM\ManyToMany(targetEntity: InterventionReport::class, mappedBy: 'actions')]
     private $interventionReports;
 
     public function __construct()

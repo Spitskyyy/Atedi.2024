@@ -1,6 +1,12 @@
 rules:
   - find: '#/\*\*\s*\n\s*\*\s*@Route\((.*?)\)\s*\n\s*\*/#s'
     replace: "#[Route(modifthis)]"
+  # Pour @ORM\Entity et d'autres annotations ORM similaires
+  - find: '#@\ORM\\([A-Za-z]+)\((.*?)\)#s'
+    replace: "#[ORM\\\$1(modifthis)]"
+  # Pour @UniqueEntity
+  - find: '#@\UniqueEntity\((.*?)\)#s'
+    replace: "#[UniqueEntity(modifthis)]"
 parameters:
   - for: '='
     put: ': '
