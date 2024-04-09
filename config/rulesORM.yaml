@@ -3,7 +3,7 @@ rules:
     replace: "#[Route(modifthis)]"
   # Pour @ORM\Entity et d'autres annotations ORM similaires
   - find: '#@\ORM\\([A-Za-z]+)\((.*?)\)#s'
-    replace: "#[ORM\\\$1(modifthis)]"
+    replace: "#[ORM\\\(modifthis)]"
   # Pour @UniqueEntity
   - find: '#@\UniqueEntity\((.*?)\)#s'
     replace: "#[UniqueEntity(modifthis)]"

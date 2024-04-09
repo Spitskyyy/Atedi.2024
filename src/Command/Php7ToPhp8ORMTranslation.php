@@ -18,13 +18,12 @@ class Php7ToPhp8ORMTranslation extends Command
     {
         $this
             ->setDescription('Remplace les annotations de PHP7 par des Attributs pour PHP8.')
-            ->setHelp('Cette commande vous permet de migrer le code de PHP 7 à PHP 8...')
-            ->addOption('mapping-file', null, InputOption::VALUE_REQUIRED, 'Chemin vers le fichier YAML de correspondance');        
+            ->setHelp('Cette commande vous permet de migrer le code de PHP 7 à PHP 8...');        
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $mappingFile = $input->getOption('mapping-file');
+        $mappingFile = __DIR__ . '/../../config/rulesORM.yaml';
 
         if (!file_exists($mappingFile)) {
             throw new \InvalidArgumentException("Le fichier de correspondance '$mappingFile' n'existe pas.");
